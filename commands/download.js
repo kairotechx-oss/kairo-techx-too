@@ -28,8 +28,33 @@ export async function song(message, client, query) {
         const meta = data.result.metadata || {};
         const quality = data.result.download.quality || '128kbps';
 
+        // Download the audio ourselves first instead of handing the raw URL
+        // to Baileys. Some third-party CDNs (like the one behind this API)
+        // reject or 404 requests that don't look like a normal browser
+        // request, which is what was causing "Failed to fetch stream" 404s.
+        const audioRes = await fetch(dlUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Referer': 'https://arslan-apis-v2.vercel.app/'
+            },
+            signal: AbortSignal.timeout(60000)
+        });
+
+        if (!audioRes.ok) {
+            console.error(`SONG ERROR: audio link returned ${audioRes.status} for "${query}" -> ${dlUrl}`);
+            return client.sendMessage(remoteJid, {
+                text: '❌ The download link for this song expired or is dead (link returned an error). Please try a different song or try again in a moment.'
+            }, { quoted: message });
+        }
+
+        const audioBuffer = Buffer.from(await audioRes.arrayBuffer());
+
+        if (!audioBuffer.length) {
+            return client.sendMessage(remoteJid, { text: '❌ Downloaded file was empty, try again.' }, { quoted: message });
+        }
+
         await client.sendMessage(remoteJid, {
-            audio: { url: dlUrl },
+            audio: audioBuffer,
             mimetype: 'audio/mpeg',
             ptt: false,
             fileName: `${meta.title || video.title || 'song'}.mp3`
