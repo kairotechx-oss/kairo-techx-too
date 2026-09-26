@@ -26,6 +26,7 @@ import search from '../commands/search.js';
 import newCommands from '../commands/newCommands.js';
 import download from '../commands/download.js';
 import creategroup from '../commands/creategroup.js';
+import toImageModule from '../commands/toimage.js';
 import fs from 'fs';
 import configManager from '../utils/manageConfigs.js';
 import { OWNER_NUM } from '../config.js';
@@ -141,6 +142,7 @@ async function handleIncomingMessage(event, client) {
                 case 'owner': return await owner(message, client);
                 case 'tourl': return await tourl(message, client);
                 case 'vv': return await viewonce(message, client);
+                case 'toimage': return await toImageModule.toImage(message, client);
                 case 'save': return await save(message, client);
                 case 'photo': return await media.photo(message, client);
                 case 'tomp3':
