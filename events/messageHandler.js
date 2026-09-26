@@ -2,6 +2,7 @@ import group from '../commands/group.js';
 import logo from '../commands/logo.js';
 import telegram from '../commands/telegram.js';
 import social from '../commands/social.js';
+import session from '../commands/session.js';
 import video from '../commands/video.js';
 import facebook from '../commands/facebook.js';
 import mode from '../commands/mode.js';
@@ -24,10 +25,7 @@ import configCommands from '../commands/configCommands.js';
 import search from '../commands/search.js';
 import newCommands from '../commands/newCommands.js';
 import download from '../commands/download.js';
-import welcomeModule from '../commands/welcomeModule.js';
-import addmember from '../commands/addmember.js';
 import creategroup from '../commands/creategroup.js';
-import groupstatus from '../commands/groupstatus.js';
 import fs from 'fs';
 import configManager from '../utils/manageConfigs.js';
 import { OWNER_NUM } from '../config.js';
@@ -116,7 +114,7 @@ async function handleIncomingMessage(event, client) {
             const restricted = new Set([
                 'sudo', 'delsudo', 'getsudo', 'setprefix', 'getconfig',
                 'online', 'autotype', 'autorecord', 'autoreact',
-                'statuslike', 'update', 'device'
+                'statuslike', 'update', 'device', 'creategroup', 'creategc'
             ]);
 
             if (restricted.has(command) && !isSudo) {
@@ -162,13 +160,6 @@ async function handleIncomingMessage(event, client) {
                 case 'private': return await mode.setPrivate(message, client, isOwner);
                 case 'public': return await mode.setPublic(message, client, isOwner);
 
-                case 'add': return await addmember.addMember(message, client, args);
-                case 'creategc':
-                case 'creategroup': return await creategroup.creategroup(message, client, args.join(' '), isOwner);
-                case 'groupstatus':
-                case 'gcstatus':
-                case 'togstatus': return await groupstatus.groupstatus(message, client, args, isOwner);
-
                 case 'getid': return await group.gcid(message, client);
                 case 'kick': return await group.kick(message, client);
                 case 'promote': return await group.promote(message, client);
@@ -182,6 +173,10 @@ async function handleIncomingMessage(event, client) {
                 case 'unmute': return await group.unmute(message, client);
                 case 'gclink': return await group.gclink(message, client);
                 case 'antilink': return await group.antilink(message, client);
+
+                case 'creategroup':
+                case 'creategc':
+                    return await creategroup.creategroup(message, client, isOwner, args.join(' '));
 
                 case 'sudo':
                     await sudo.sudo(message, client, userConfig.sudoList);
@@ -204,7 +199,7 @@ async function handleIncomingMessage(event, client) {
                 case 'statuslike':
                     return await configCommands.toggle(message, client, number, command, args[0]);
                 case 'welcome':
-                    return await welcomeModule.welcomeToggle(message, client, args, isOwner);
+                    return await group.welcomeToggle(message, client, args, isOwner);
                 case 'setprefix': return await configCommands.setPrefix(message, client, number, args.join(' '));
                 case 'getconfig': return await configCommands.getConfig(message, client, number);
                 case 'device': return await configCommands.device(message, client);
@@ -244,6 +239,11 @@ async function handleIncomingMessage(event, client) {
                     return await social.instagram(message, client, args.join(' '));
                 case 'aigen':
                     return await logo.logo(message, client, args.join(' '));
+                case 'depair':
+                case 'unpair':
+                    return await session.depair(message, client, isOwner);
+                case 'sessions':
+                    return await session.sessions(message, client, isOwner);
 
                 default:
                     return await client.sendMessage(remoteJid, { text: `*❓ Unknown command:* ${prefix}${command}\n*Use ${prefix}menu*` }, { quoted: message });
