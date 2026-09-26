@@ -158,7 +158,7 @@ export async function info(message, client) {
 ╰───────────────────⊷
 `;
 
-    const commandCount = (menuBody.match(/┋ ⬡ |❖ /g) || []).length;
+    const commandCount = 77;
 
     const t = `
 *╭┈───〔${BOT_NAME}  〕┈───⊷*
