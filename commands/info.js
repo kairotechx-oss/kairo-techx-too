@@ -87,6 +87,7 @@ export async function info(message, client) {
 ╭───────────────────⊷
 ┋ ⬡ ${prefix}bye
 ┋ ⬡ ${prefix}kick
+┋ ⬡ ${prefix}add
 ┋ ⬡ ${prefix}purge
 ┋ ⬡ ${prefix}mute
 ┋ ⬡ ${prefix}unmute
